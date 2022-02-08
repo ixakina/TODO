@@ -1,4 +1,5 @@
-import { createElement } from './utils.mjs';
+import { listeners } from './listeners.js';
+import { createElement, fillModalFields, getFormattedDate } from './utils.mjs';
 
 export class ListItem {
   constructor(startDate, endDate, text) {
@@ -8,18 +9,51 @@ export class ListItem {
   }
   createItem() {
     const item = createElement('li', 'list__item');
-    item.innerHTML = `
-    <input type="checkbox" class="item__is-done">
-    <div class="item__body">
-         <span class="item__start-date">${this.startDate}</span>
-         <span class="item__text">${this.text}</span>
-         <span class="item__end-date">${this.endDate}</span>
-    </div>
-    <div class="item__controls">
-         <button class="item__delete"></button>
-         <button class="item__edit"></button>         
-    </div>
-    `;
+
+    const checkbox = createElement('input', 'item__is-done');
+    checkbox.type = 'checkbox';
+    checkbox.addEventListener('change', () => {
+      if (checkbox.checked) {
+        inputText.classList.add('done');
+        item.dataset.status = 'done';
+      } else {
+        inputText.classList.remove('done');
+        item.dataset.status = 'active';
+      }
+    });
+
+    const itemBody = createElement('div', 'item__body');
+
+    const inputStartDate = createElement('span', 'item__start-date');
+    inputStartDate.textContent = this.startDate;
+
+    const inputText = createElement('span', 'item__text');
+    inputText.textContent = this.text;
+
+    const inputEndDate = createElement('span', 'item__end-date');
+    inputEndDate.textContent = this.endDate;
+
+    itemBody.append(inputStartDate, inputText, inputEndDate);
+
+    const itemControls = createElement('div', 'item__controls');
+
+    const deleteBtn = createElement('button', 'item__delete');
+    deleteBtn.addEventListener('click', () => item.remove());
+
+    const editBtn = createElement('button', 'item__edit');
+    editBtn.addEventListener('click', () => {
+      fillModalFields(
+        getFormattedDate(this.startDate),
+        getFormattedDate(this.endDate),
+        getFormattedDate(this.text)
+      );
+      listeners.showModalEditItem();
+    });
+
+    itemControls.append(deleteBtn, editBtn);
+
+    item.append(checkbox, itemBody, itemControls);
+
     return item;
   }
 }

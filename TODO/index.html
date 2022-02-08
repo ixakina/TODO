@@ -9,7 +9,7 @@
     <title>ToDoList</title>
 </head>
 <body>
-    <div class="modal">
+    <div class="modal hide modal-new-item">
         <div class="modal__overlay">
             <div class="modal__body">
                 <h2>Create your task</h2>
@@ -25,27 +25,30 @@
             </div>
         </div>
     </div>
+    <div class="modal hide modal-edit-item">
+        <div class="modal__overlay">
+            <div class="modal__body">
+                <h2>Edit your task</h2>
+                <div class="modal__form">
+                    <label for="start-date">Enter start date</label><input id="start-date" type="date" class="modal__start-date">
+                    <label for="text">Enter your task</label><input id="text" type="text" class="modal__text">
+                    <label for="end-date">Enter finish date</label><input id="end-date" type="date" class="modal__end-date">
+                </div>
+                <div class="modal__controls">
+                    <button class="cancel">Cancel</button>
+                    <button class="save">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="container">
         <h2>ToDoList</h2>
             <div class="input">
-                <input class="enter-item" type="text" placeholder="Enter something...">
+                <input class="enter-item" type="text" pattern="[A-Za-z0-9]+" title="
+                special characters are not allowed" placeholder="Enter something...">
                 <button class="add-item"></button>
             </div>
-        <ul class="list">
-            <li class="list__item" data-status="active">
-               <input type="checkbox" class="item__is-done">
-               <div class="item__body">
-                    <span class="item__start-date">24/24/24</span>
-                    <span class="item__text">flskklsdgldjgkdfkhj</span>
-                    <span class="item__end-date">24/24/24</span>
-               </div>
-               <div class="item__controls">
-                    <button class="item__delete"></button>
-                    <button class="item__edit"></button>         
-               </div>
-            </li>
-        </ul>
-        
+        <ul class="list"></ul>        
     </div>
 <script src="index.mjs" type="module"></script>   
 </body>
