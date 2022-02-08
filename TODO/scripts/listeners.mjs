@@ -1,7 +1,8 @@
 import { ListItem } from './list-item.mjs';
+import { Modal } from './modal.mjs';
 
 export class Listeners {
-  typeModalToShow = '';
+  typeModal = 'new';
 
   createItemFromInput(event) {
     const date = new Date();
@@ -29,21 +30,38 @@ export class Listeners {
     const newItem = new ListItem(startDate, endDate, text).createItem();
 
     list.append(newItem);
-    event.target.closest('.modal').classList.add('hide');
+    event.target.closest('.modal').remove();
   }
 
-  closeModal(event) {
-    event.target.closest('.modal').classList.add('hide');
-  }
-
-  showModalCreateItem() {
-    const modal = document.querySelector('.modal-new-item');
-    modal.classList.remove('hide');
+  showModalNewItem() {
+    const modal = new Modal();
+    modal.addNewItemListeners();
   }
 
   showModalEditItem() {
-    const modal = document.querySelector('.modal-edit-item');
-    modal.classList.remove('hide');
+    const modal = new Modal();
+    modal.editItemListeners();
+  }
+
+  closeModal(event) {
+    event.target.closest('.modal').remove();
+  }
+
+  editItem() {
+    const fixedStartDate = new Date(
+      document.querySelector('.modal__start-date').value
+    ).toLocaleDateString();
+    const fixedEndDate = new Date(
+      document.querySelector('.modal__end-date').value
+    ).toLocaleDateString();
+    const fixedText = document.querySelector('.modal__text').value;
+    const editableItem = document.querySelector('.editable');
+
+    editableItem.querySelector('.item__start-date').textContent =
+      fixedStartDate;
+    editableItem.querySelector('.item__end-date').textContent = fixedEndDate;
+    editableItem.querySelector('.item__text').textContent = fixedText;
+    document.querySelector('.modal').remove();
   }
 }
 

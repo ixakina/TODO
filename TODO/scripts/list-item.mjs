@@ -1,4 +1,4 @@
-import { listeners } from './listeners.js';
+import { listeners } from './listeners.mjs';
 import { createElement, fillModalFields, getFormattedDate } from './utils.mjs';
 
 export class ListItem {
@@ -7,6 +7,7 @@ export class ListItem {
     this.endDate = endDate;
     this.text = text;
   }
+
   createItem() {
     const item = createElement('li', 'list__item');
 
@@ -41,13 +42,17 @@ export class ListItem {
     deleteBtn.addEventListener('click', () => item.remove());
 
     const editBtn = createElement('button', 'item__edit');
-    editBtn.addEventListener('click', () => {
+
+    editBtn.addEventListener('click', (event) => {
+      event.target.closest('.list__item').classList.add('editable');
+
+      listeners.showModalEditItem();
+
       fillModalFields(
         getFormattedDate(this.startDate),
         getFormattedDate(this.endDate),
         getFormattedDate(this.text)
       );
-      listeners.showModalEditItem();
     });
 
     itemControls.append(deleteBtn, editBtn);

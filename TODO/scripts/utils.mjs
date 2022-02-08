@@ -5,11 +5,9 @@ export function createElement(tag, className) {
 }
 
 export function fillModalFields(start, end, text) {
-  const startDate = document.querySelector(
-    '.modal-edit-item .modal__start-date'
-  );
-  const endDate = document.querySelector('.modal-edit-item .modal__end-date');
-  const savedText = document.querySelector('.modal-edit-item .modal__text');
+  const startDate = document.querySelector('.modal__start-date');
+  const endDate = document.querySelector('.modal__end-date');
+  const savedText = document.querySelector('.modal__text');
   savedText.value = text;
   startDate.value = start;
   endDate.value = end;
