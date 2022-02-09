@@ -1,5 +1,4 @@
 import { createElement } from './utils.mjs';
-import { listeners } from './listeners.mjs';
 import { getFormattedDate } from './utils.mjs';
 
 export class Modal {
@@ -23,21 +22,6 @@ export class Modal {
     document.body.prepend(this.modal);
   }
 
-  addNewItemListeners() {
-    const save = document.querySelector('.save');
-    const cancel = document.querySelector('.cancel');
-
-    save.addEventListener('click', listeners.createItemFromAddBtn);
-    cancel.addEventListener('click', listeners.closeModal);
-  }
-
-  editItemListeners() {
-    const save = document.querySelector('.save');
-    const cancel = document.querySelector('.cancel');
-
-    save.addEventListener('click', listeners.editItem);
-    cancel.addEventListener('click', listeners.closeModal);
-  }
   validateDateInput() {
     const minDateInput = document.querySelector('.modal__start-date');
     const maxDateInput = document.querySelector('.modal__end-date');
