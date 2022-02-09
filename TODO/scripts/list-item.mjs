@@ -2,14 +2,17 @@ import { listeners } from './listeners.mjs';
 import { createElement, fillModalFields, getFormattedDate } from './utils.mjs';
 
 export class ListItem {
-  constructor(startDate, endDate, text) {
+  constructor(startDate, endDate, text, id) {
     this.startDate = startDate;
     this.endDate = endDate;
     this.text = text;
+    this.id = id;
   }
 
   createItem() {
     const item = createElement('li', 'list__item');
+    item.dataset.status = 'active';
+    item.id = this.id;
 
     const checkbox = createElement('input', 'item__is-done');
     checkbox.type = 'checkbox';

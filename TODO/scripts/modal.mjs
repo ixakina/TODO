@@ -1,5 +1,6 @@
 import { createElement } from './utils.mjs';
 import { listeners } from './listeners.mjs';
+import { getFormattedDate } from './utils.mjs';
 
 export class Modal {
   constructor() {
@@ -9,9 +10,9 @@ export class Modal {
             <div class="modal__body">
                 <h2>Create your task</h2>
                 <div class="modal__form">
-                    <label for="start-date">Enter start date</label><input id="start-date" type="date" class="modal__start-date">
+                    <label for="start-date">Enter start date</label><input id="start-date" min="" type="date" class="modal__start-date">
                     <label for="text">Enter your task</label><input id="text" type="text" class="modal__text">
-                    <label for="end-date">Enter finish date</label><input id="end-date" type="date" class="modal__end-date">
+                    <label for="end-date">Enter finish date</label><input id="end-date" min="" type="date" class="modal__end-date">
                 </div>
                 <div class="modal__controls">
                 <button class="cancel">Cancel</button>
@@ -36,5 +37,12 @@ export class Modal {
 
     save.addEventListener('click', listeners.editItem);
     cancel.addEventListener('click', listeners.closeModal);
+  }
+  validateDateInput() {
+    const minDateInput = document.querySelector('.modal__start-date');
+    const maxDateInput = document.querySelector('.modal__end-date');
+    const now = new Date().toLocaleDateString();
+    minDateInput.setAttribute('min', `${getFormattedDate(now)}`);
+    maxDateInput.setAttribute('min', minDateInput.getAttribute('min'));
   }
 }
