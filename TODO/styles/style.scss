@@ -70,15 +70,6 @@ h2 {
     gap: 10px;
   }
 
-  &__start-date {
-  }
-
-  &__text {
-  }
-
-  &__end-date {
-  }
-
   &__controls {
     display: flex;
     gap: 5px;
@@ -106,11 +97,6 @@ h2 {
     background-color: rgba(32, 178, 170, 0.5);
     font-size: 1.2rem;
   }
-
-  // button:disabled {
-  //   background-color: rgba(128, 131, 131, 0.5);
-  //   cursor: default;
-  // }
 }
 
 .modal {
@@ -149,12 +135,6 @@ h2 {
     border: 1px solid lightseagreen;
   }
 
-  &__text {
-  }
-
-  &__end-date {
-  }
-
   &__controls {
     button {
       padding: 10px;
@@ -167,8 +147,6 @@ h2 {
 }
 .cancel {
   margin-right: 40px;
-}
-.save {
 }
 
 .done {
@@ -197,10 +175,6 @@ h2 {
     display: flex;
     gap: 15px;
   }
-}
-.sort {
-}
-.filters {
 }
 
 #search {

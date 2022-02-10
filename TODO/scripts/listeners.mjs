@@ -3,7 +3,7 @@ export class Listeners {
     document.querySelector('.modal').remove();
   }
 
-  showAllItems() {
+  showAllItems(data) {
     const allItems = document.querySelectorAll('.list__item');
     if (allItems.length) {
       allItems.forEach((item) => item.classList.remove('hide'));

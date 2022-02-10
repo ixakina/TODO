@@ -37,12 +37,12 @@ export class App {
 
     this.dateFilter.addEventListener(
       'change',
-      this.filterByDate.bind(this, this.dataList)
+      this.redraw.bind(this, this.dataList)
     );
 
     this.searchFilter.addEventListener(
       'input',
-      this.filterByText.bind(this, this.dataList)
+      this.redraw.bind(this, this.dataList)
     );
 
     this.addBtn.addEventListener('click', () => {
@@ -93,9 +93,7 @@ export class App {
       const filteredData = data.filter(
         (item) => item.endDate == new Date().toLocaleDateString()
       );
-      this.redraw(filteredData);
-    } else {
-      this.redraw(this.dataList);
+      return filteredData;
     }
   }
 
@@ -103,7 +101,7 @@ export class App {
     const filteredData = data.filter((item) =>
       item.text.includes(this.searchFilter.value)
     );
-    this.redraw(filteredData);
+    return filteredData;
   }
 
   setSortSettings(data) {
@@ -265,10 +263,24 @@ export class App {
   redraw(data) {
     this.listItems.innerHTML = '';
 
-    let res = this.sort(data);
+    if (this.dateFilter.checked) {
+      const filteredData = data.filter(
+        (item) => item.endDate == new Date().toLocaleDateString()
+      );
+      const res = filteredData.filter((item) =>
+        item.text.includes(this.searchFilter.value)
+      );
 
-    res.forEach((todoItem) => {
-      this.listItems.append(todoItem.createItem());
-    });
+      this.sort(res).forEach((todoItem) => {
+        this.listItems.append(todoItem.createItem());
+      });
+    } else {
+      const res = data.filter((item) =>
+        item.text.includes(this.searchFilter.value.toLowerCase())
+      );
+      this.sort(res).forEach((todoItem) => {
+        this.listItems.append(todoItem.createItem());
+      });
+    }
   }
 }
