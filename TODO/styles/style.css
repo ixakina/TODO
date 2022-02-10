@@ -37,7 +37,7 @@ h2 {
   font-size: 1.5rem;
 }
 
-.sort {
+.toggle-settings {
   width: 30px;
   height: 30px;
   background: url("../assets/sort.svg") center/cover no-repeat;
@@ -191,11 +191,64 @@ h2 {
   margin-right: 40px;
 }
 
-.hide {
-  display: none;
-}
-
 .done {
   color: #9b9696;
   text-decoration: line-through;
+}
+
+.settings {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 30px;
+  font-size: 1.5rem;
+  margin-bottom: 40px;
+  border: 1px solid lightseagreen;
+  border-radius: 5px;
+  padding: 20px;
+}
+
+.settings select {
+  font-size: inherit;
+  border: 1px solid lightseagreen;
+  background-color: rgba(32, 178, 170, 0.5);
+  border-radius: 5px;
+}
+
+.settings__item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 15px;
+}
+
+#search {
+  font-size: inherit;
+  border: 1px solid lightseagreen;
+  background-color: rgba(32, 178, 170, 0.5);
+  border-radius: 5px;
+  padding: 0 10px;
+}
+
+.date-filter {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 10px;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.date-filter input {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.hide {
+  display: none;
 }

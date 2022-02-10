@@ -5,6 +5,11 @@ import { fillModalFields, getFormattedDate } from './utils.mjs';
 
 export class App {
   input = document.querySelector('.enter-item');
+  settingsBtn = document.querySelector('.toggle-settings');
+  settings = document.querySelector('.settings');
+  sortSelect = document.querySelector('#select');
+  dateFilter = document.querySelector('#filter');
+  searchFilter = document.querySelector('#search');
   addBtn = document.querySelector('.add-item');
   listItems = document.querySelector('ul');
   showAllBtn = document.querySelector('.all');
@@ -12,6 +17,9 @@ export class App {
   showCompletedBtn = document.querySelector('.complete');
   clearBtn = document.querySelector('.clear');
   dataList = [];
+  sortType = null;
+  sortByDate = false;
+  sortByAlphabet = false;
 
   init() {
     this.createListeners();
@@ -19,6 +27,23 @@ export class App {
 
   createListeners() {
     this.input.addEventListener('change', this.createItemFromInput.bind(this));
+
+    this.sortSelect.addEventListener(
+      'change',
+      this.setSortSettings.bind(this, this.dataList)
+    );
+
+    this.settingsBtn.addEventListener('click', this.toggleSettings.bind(this));
+
+    this.dateFilter.addEventListener(
+      'change',
+      this.filterByDate.bind(this, this.dataList)
+    );
+
+    this.searchFilter.addEventListener(
+      'input',
+      this.filterByText.bind(this, this.dataList)
+    );
 
     this.addBtn.addEventListener('click', () => {
       const modal = new Modal();
@@ -31,7 +56,8 @@ export class App {
     });
 
     this.listItems.addEventListener('click', (e) => {
-      const id = +e.target.id;
+      const id = e.target.closest('.list__item').id;
+      if (!id) return;
 
       switch (e.target.className) {
         case 'item__edit':
@@ -62,6 +88,95 @@ export class App {
     this.clearBtn.addEventListener('click', this.clearDoneItems.bind(this));
   }
 
+  filterByDate(data) {
+    if (this.dateFilter.checked) {
+      const filteredData = data.filter(
+        (item) => item.endDate == new Date().toLocaleDateString()
+      );
+      this.redraw(filteredData);
+    } else {
+      this.redraw(this.dataList);
+    }
+  }
+
+  filterByText(data) {
+    const filteredData = data.filter((item) =>
+      item.text.includes(this.searchFilter.value)
+    );
+    this.redraw(filteredData);
+  }
+
+  setSortSettings(data) {
+    switch (this.sortSelect.value) {
+      case 'date-up':
+        this.sortType = 'asc';
+        this.sortByDate = true;
+        this.sortByAlphabet = false;
+        break;
+
+      case 'date-down':
+        this.sortType = 'desc';
+        this.sortByDate = true;
+        this.sortByAlphabet = false;
+        break;
+
+      case 'text-up':
+        this.sortType = 'asc';
+        this.sortByDate = false;
+        this.sortByAlphabet = true;
+        break;
+
+      case 'text-down':
+        this.sortType = 'desc';
+        this.sortByDate = false;
+        this.sortByAlphabet = true;
+        break;
+    }
+
+    this.redraw(data);
+  }
+
+  sort(data) {
+    this.sortText.call(this, data);
+    this.sortDate.call(this, data);
+    return data;
+  }
+
+  sortDate(data) {
+    if (!this.sortByDate || !this.sortType) return;
+
+    data.sort((itemA, itemB) => {
+      const itemADate = new Date(getFormattedDate(itemA.endDate));
+      const itemBDate = new Date(getFormattedDate(itemB.endDate));
+
+      if (this.sortType === 'asc') {
+        return itemADate - itemBDate;
+      }
+
+      if (this.sortType === 'desc') {
+        return itemBDate - itemADate;
+      }
+    });
+  }
+
+  sortText(data) {
+    if (!this.sortByAlphabet || !this.sortType) return;
+
+    data.sort((itemA, itemB) => {
+      if (this.sortType === 'asc') {
+        return itemA.text > itemB.text ? 1 : -1;
+      }
+
+      if (this.sortType === 'desc') {
+        return itemB.text > itemA.text ? 1 : -1;
+      }
+    });
+  }
+
+  toggleSettings() {
+    this.settings.classList.toggle('hide');
+  }
+
   editItem(id) {
     const fixedStartDate = new Date(
       document.querySelector('.modal__start-date').value
@@ -77,15 +192,14 @@ export class App {
     this.dataList[id].endDate = fixedEndDate;
     this.dataList[id].text = fixedText;
 
-    this.redraw();
+    this.redraw(this.dataList);
 
     listeners.closeModal();
   }
 
   deleteItem(id) {
     this.dataList.splice(id, 1);
-    this.redraw();
-    console.log(this.dataList);
+    this.redraw(this.dataList);
   }
 
   createItemFromInput(event) {
@@ -103,7 +217,7 @@ export class App {
     );
 
     this.dataList.push(itemData);
-    this.redraw();
+    this.redraw(this.dataList);
 
     event.target.value = '';
   }
@@ -134,19 +248,26 @@ export class App {
   }
 
   clearDoneItems() {
-    const allItems = Array.from(
+    const doneItems = Array.from(
       document.querySelectorAll('[data-status="done"]')
     );
-    if (allItems.length) {
-      allItems.forEach((item) => this.dataList.splice(item.id, 1));
-      this.redraw();
+
+    if (doneItems.length) {
+      doneItems.forEach((done) => {
+        const deletedItem = this.dataList.find((item) => done.id === item.id);
+        this.dataList.splice(this.dataList.indexOf(deletedItem), 1);
+      });
+
+      this.redraw(this.dataList);
     } else return;
   }
 
-  redraw() {
+  redraw(data) {
     this.listItems.innerHTML = '';
 
-    this.dataList.forEach((todoItem) => {
+    let res = this.sort(data);
+
+    res.forEach((todoItem) => {
       this.listItems.append(todoItem.createItem());
     });
   }

@@ -12,19 +12,29 @@
     <div class="container">
         <h2>ToDoList</h2>
         <div class="input">
-            <div class="settings">
-                <select name="" id="">
-                    <option value="">sort by date up</option>
-                    <option value="">sort by date down</option>
-                    <option value="">sort by alphabet up</option>
-                    <option value="">sort by alphabet down</option>
-                </select>
-                <input type="search" id="search" placeholder="start typing here">
-            </div>
-            <button class="sort"></button>            
+            <button class="toggle-settings"></button>            
             <input class="enter-item" type="text" min="" pattern="[A-Za-z0-9]+" title="
             special characters are not allowed" placeholder="Enter something...">
             <button class="add-item"></button>
+        </div>
+        <div class="settings hide">
+            <div class="settings__item sort">
+                <h3>Sorting</h3>
+                <select name="" id="select">
+                    <option value disabled selected>Sort by</option>
+                    <option value="date-up">end-date up</option>
+                    <option value="date-down">end-date down</option>
+                    <option value="text-up">alphabet up</option>
+                    <option value="text-down">alphabet down</option>
+                </select>
+            </div>
+            <div class="settings__item filters">
+                <h3>Filtration</h3>
+                <input type="search" id="search" placeholder="Search">
+                <div class="date-filter">
+                    <input type="checkbox" id="filter"><label for="filter">End date - today</label>
+                </div>
+            </div>
         </div>
         <ul class="list"></ul>
         <div class="show-items-btns">
