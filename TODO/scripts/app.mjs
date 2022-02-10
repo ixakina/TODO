@@ -1,3 +1,4 @@
+import { SORT_CONDITION, SORT_TYPE } from './app.consts.mjs';
 import { ListItem } from './list-item.mjs';
 import { listeners } from './listeners.mjs';
 import { Modal } from './modal.mjs';
@@ -8,7 +9,7 @@ export class App {
   settingsBtn = document.querySelector('.toggle-settings');
   settings = document.querySelector('.settings');
   sortSelect = document.querySelector('#select');
-  dateFilter = document.querySelector('#filter');
+  dateFilter = document.querySelector('#date');
   searchFilter = document.querySelector('#search');
   addBtn = document.querySelector('.add-item');
   listItems = document.querySelector('ul');
@@ -17,33 +18,50 @@ export class App {
   showCompletedBtn = document.querySelector('.complete');
   clearBtn = document.querySelector('.clear');
   dataList = [];
-  sortType = null;
-  sortByDate = false;
-  sortByAlphabet = false;
+  sortType = SORT_TYPE.ALPHABET;
+  sortCondition = SORT_CONDITION.ASC;
 
   init() {
     this.createListeners();
   }
 
+  sortByDate() {
+    this.sortCondition =
+      this.sortCondition === SORT_CONDITION.ASC
+        ? SORT_CONDITION.DESC
+        : SORT_CONDITION.ASC;
+
+    this.sortType = SORT_TYPE.DATE;
+
+    this.redraw();
+  }
+
+  sortByAlphabet() {
+    this.sortCondition =
+      this.sortCondition === SORT_CONDITION.ASC
+        ? SORT_CONDITION.DESC
+        : SORT_CONDITION.ASC;
+
+    this.sortType = SORT_TYPE.ALPHABET;
+
+    this.redraw();
+  }
+
   createListeners() {
     this.input.addEventListener('change', this.createItemFromInput.bind(this));
 
-    this.sortSelect.addEventListener(
-      'change',
-      this.setSortSettings.bind(this, this.dataList)
-    );
+    document
+      .querySelector('.sortByDate')
+      .addEventListener('click', this.sortByDate.bind(this));
+    document
+      .querySelector('.sortByAlphabet')
+      .addEventListener('click', this.sortByAlphabet.bind(this));
 
     this.settingsBtn.addEventListener('click', this.toggleSettings.bind(this));
 
-    this.dateFilter.addEventListener(
-      'change',
-      this.redraw.bind(this, this.dataList)
-    );
+    this.dateFilter.addEventListener('change', this.redraw.bind(this));
 
-    this.searchFilter.addEventListener(
-      'input',
-      this.redraw.bind(this, this.dataList)
-    );
+    this.searchFilter.addEventListener('input', this.redraw.bind(this));
 
     this.addBtn.addEventListener('click', () => {
       const modal = new Modal();
@@ -86,89 +104,6 @@ export class App {
     this.showActiveBtn.addEventListener('click', listeners.showActiveItems);
     this.showCompletedBtn.addEventListener('click', listeners.showDoneItems);
     this.clearBtn.addEventListener('click', this.clearDoneItems.bind(this));
-  }
-
-  filterByDate(data) {
-    if (this.dateFilter.checked) {
-      const filteredData = data.filter(
-        (item) => item.endDate == new Date().toLocaleDateString()
-      );
-      return filteredData;
-    }
-  }
-
-  filterByText(data) {
-    const filteredData = data.filter((item) =>
-      item.text.includes(this.searchFilter.value)
-    );
-    return filteredData;
-  }
-
-  setSortSettings(data) {
-    switch (this.sortSelect.value) {
-      case 'date-up':
-        this.sortType = 'asc';
-        this.sortByDate = true;
-        this.sortByAlphabet = false;
-        break;
-
-      case 'date-down':
-        this.sortType = 'desc';
-        this.sortByDate = true;
-        this.sortByAlphabet = false;
-        break;
-
-      case 'text-up':
-        this.sortType = 'asc';
-        this.sortByDate = false;
-        this.sortByAlphabet = true;
-        break;
-
-      case 'text-down':
-        this.sortType = 'desc';
-        this.sortByDate = false;
-        this.sortByAlphabet = true;
-        break;
-    }
-
-    this.redraw(data);
-  }
-
-  sort(data) {
-    this.sortText.call(this, data);
-    this.sortDate.call(this, data);
-    return data;
-  }
-
-  sortDate(data) {
-    if (!this.sortByDate || !this.sortType) return;
-
-    data.sort((itemA, itemB) => {
-      const itemADate = new Date(getFormattedDate(itemA.endDate));
-      const itemBDate = new Date(getFormattedDate(itemB.endDate));
-
-      if (this.sortType === 'asc') {
-        return itemADate - itemBDate;
-      }
-
-      if (this.sortType === 'desc') {
-        return itemBDate - itemADate;
-      }
-    });
-  }
-
-  sortText(data) {
-    if (!this.sortByAlphabet || !this.sortType) return;
-
-    data.sort((itemA, itemB) => {
-      if (this.sortType === 'asc') {
-        return itemA.text > itemB.text ? 1 : -1;
-      }
-
-      if (this.sortType === 'desc') {
-        return itemB.text > itemA.text ? 1 : -1;
-      }
-    });
   }
 
   toggleSettings() {
@@ -260,27 +195,38 @@ export class App {
     } else return;
   }
 
-  redraw(data) {
+  redraw() {
     this.listItems.innerHTML = '';
 
-    if (this.dateFilter.checked) {
-      const filteredData = data.filter(
-        (item) => item.endDate == new Date().toLocaleDateString()
-      );
-      const res = filteredData.filter((item) =>
-        item.text.includes(this.searchFilter.value)
-      );
+    this.dataList
+      .filter((todoItem) => {
+        if (!this.searchFilter.value.trim()) {
+          return true;
+        }
+        switch (true) {
+          case !!this.searchFilter.value:
+            return todoItem.text.includes(this.searchFilter.value);
+          default:
+            break;
+        }
+      })
+      .sort((itemA, itemB) => {
+        const [increase, decrease] =
+          this.sortCondition === SORT_CONDITION.ASC ? [1, -1] : [-1, 1];
 
-      this.sort(res).forEach((todoItem) => {
+        switch (this.sortType) {
+          case SORT_TYPE.ALPHABET:
+            return itemA.text > itemB.text ? increase : decrease;
+          case SORT_TYPE.DATE:
+            const itemADate = new Date(getFormattedDate(itemA.endDate));
+            const itemBDate = new Date(getFormattedDate(itemB.endDate));
+            return itemADate - itemBDate > 0 ? increase : decrease;
+          default:
+            break;
+        }
+      })
+      .forEach((todoItem) => {
         this.listItems.append(todoItem.createItem());
       });
-    } else {
-      const res = data.filter((item) =>
-        item.text.includes(this.searchFilter.value.toLowerCase())
-      );
-      this.sort(res).forEach((todoItem) => {
-        this.listItems.append(todoItem.createItem());
-      });
-    }
   }
 }

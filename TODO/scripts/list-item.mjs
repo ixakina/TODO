@@ -1,6 +1,4 @@
-import { listeners } from './listeners.mjs';
-import { Modal } from './modal.mjs';
-import { createElement, fillModalFields, getFormattedDate } from './utils.mjs';
+import { createElement } from './utils.mjs';
 
 export class ListItem {
   constructor(startDate, endDate, text, id) {
