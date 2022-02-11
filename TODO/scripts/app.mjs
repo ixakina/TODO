@@ -212,7 +212,9 @@ export class App {
 
         switch (this.sortType) {
           case SORT_TYPE.ALPHABET:
-            return itemA.text > itemB.text ? increase : decrease;
+            return itemA.text.toLowerCase() > itemB.text.toLowerCase()
+              ? increase
+              : decrease;
           case SORT_TYPE.DATE:
             const itemADate = new Date(getFormattedDate(itemA.startDate));
             const itemBDate = new Date(getFormattedDate(itemB.startDate));
