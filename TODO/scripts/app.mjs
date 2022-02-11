@@ -196,7 +196,9 @@ export class App {
         if (!this.searchFilter.value.trim()) {
           return true;
         } else {
-          return todoItem.text.includes(this.searchFilter.value);
+          return todoItem.text
+            .toLowerCase()
+            .includes(this.searchFilter.value.toLowerCase());
         }
       })
       .filter((todoItem) => {
