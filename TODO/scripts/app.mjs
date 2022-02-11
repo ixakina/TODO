@@ -1,14 +1,17 @@
 import { SORT_CONDITION, SORT_TYPE } from './app.consts.mjs';
 import { ListItem } from './list-item.mjs';
 import { listeners } from './listeners.mjs';
-import { Modal } from './modal.mjs';
-import { fillModalFields, getFormattedDate } from './utils.mjs';
+import {
+  fillModalFields,
+  getFormattedDate,
+  showModal,
+  validateInput,
+} from './utils.mjs';
 
 export class App {
   input = document.querySelector('.enter-item');
   settingsBtn = document.querySelector('.toggle-settings');
   settings = document.querySelector('.settings');
-  sortSelect = document.querySelector('#select');
   dateFilter = document.querySelector('#date');
   searchFilter = document.querySelector('#search');
   addBtn = document.querySelector('.add-item');
@@ -23,6 +26,71 @@ export class App {
 
   init() {
     this.createListeners();
+  }
+
+  createListeners() {
+    this.input.addEventListener('change', this.createItemFromInput.bind(this));
+    this.input.addEventListener('input', validateInput);
+    document
+      .querySelector('.sort-by-date')
+      .addEventListener('click', this.sortByDate.bind(this));
+    document
+      .querySelector('.sort-by-alphabet')
+      .addEventListener('click', this.sortByAlphabet.bind(this));
+
+    this.settingsBtn.addEventListener('click', this.toggleSettings.bind(this));
+
+    this.dateFilter.addEventListener('change', this.redraw.bind(this));
+
+    this.searchFilter.addEventListener('input', this.redraw.bind(this));
+
+    this.addBtn.addEventListener('click', () => {
+      showModal();
+      const save = document.querySelector('.save');
+      const cancel = document.querySelector('.cancel');
+
+      save.addEventListener('click', this.createItemFromAddBtn.bind(this));
+      cancel.addEventListener('click', listeners.closeModal);
+    });
+
+    this.listItems.addEventListener('click', (e) => {
+      const id = e.target.closest('.list__item').id;
+      if (!id) return;
+
+      switch (e.target.className) {
+        case 'item__edit':
+          showModal();
+
+          fillModalFields(
+            getFormattedDate(this.dataList[id].startDate),
+            getFormattedDate(this.dataList[id].endDate),
+            getFormattedDate(this.dataList[id].text)
+          );
+
+          const save = document.querySelector('.save');
+          const cancel = document.querySelector('.cancel');
+
+          save.addEventListener('click', () => this.editItem(id));
+          cancel.addEventListener('click', listeners.closeModal);
+          break;
+        case 'item__delete':
+          this.deleteItem(id);
+          break;
+        case 'item__is-done':
+          if (e.target.checked) {
+            this.dataList[id].status = 'done';
+            e.target.closest('.list__item').classList.add('done');
+          } else {
+            this.dataList[id].status = 'active';
+            e.target.closest('.list__item').classList.remove('done');
+          }
+      }
+    });
+
+    this.showAllBtn.addEventListener('click', listeners.showAllItems);
+    this.showActiveBtn.addEventListener('click', listeners.showActiveItems);
+    this.showCompletedBtn.addEventListener('click', listeners.showDoneItems);
+    this.clearBtn.addEventListener('click', this.clearDoneItems.bind(this));
   }
 
   sortByDate() {
@@ -47,65 +115,6 @@ export class App {
     this.redraw();
   }
 
-  createListeners() {
-    this.input.addEventListener('change', this.createItemFromInput.bind(this));
-
-    document
-      .querySelector('.sortByDate')
-      .addEventListener('click', this.sortByDate.bind(this));
-    document
-      .querySelector('.sortByAlphabet')
-      .addEventListener('click', this.sortByAlphabet.bind(this));
-
-    this.settingsBtn.addEventListener('click', this.toggleSettings.bind(this));
-
-    this.dateFilter.addEventListener('change', this.redraw.bind(this));
-
-    this.searchFilter.addEventListener('input', this.redraw.bind(this));
-
-    this.addBtn.addEventListener('click', () => {
-      const modal = new Modal();
-      modal.validateDateInput();
-      const save = document.querySelector('.save');
-      const cancel = document.querySelector('.cancel');
-
-      save.addEventListener('click', this.createItemFromAddBtn.bind(this));
-      cancel.addEventListener('click', listeners.closeModal);
-    });
-
-    this.listItems.addEventListener('click', (e) => {
-      const id = e.target.closest('.list__item').id;
-      if (!id) return;
-
-      switch (e.target.className) {
-        case 'item__edit':
-          const modal = new Modal();
-          modal.validateDateInput();
-
-          fillModalFields(
-            getFormattedDate(this.dataList[id].startDate),
-            getFormattedDate(this.dataList[id].endDate),
-            getFormattedDate(this.dataList[id].text)
-          );
-
-          const save = document.querySelector('.save');
-          const cancel = document.querySelector('.cancel');
-
-          save.addEventListener('click', () => this.editItem(id));
-          cancel.addEventListener('click', listeners.closeModal);
-          break;
-        case 'item__delete':
-          this.deleteItem(id);
-          break;
-      }
-    });
-
-    this.showAllBtn.addEventListener('click', listeners.showAllItems);
-    this.showActiveBtn.addEventListener('click', listeners.showActiveItems);
-    this.showCompletedBtn.addEventListener('click', listeners.showDoneItems);
-    this.clearBtn.addEventListener('click', this.clearDoneItems.bind(this));
-  }
-
   toggleSettings() {
     this.settings.classList.toggle('hide');
   }
@@ -125,14 +134,15 @@ export class App {
     this.dataList[id].endDate = fixedEndDate;
     this.dataList[id].text = fixedText;
 
-    this.redraw(this.dataList);
+    this.redraw();
 
     listeners.closeModal();
   }
 
   deleteItem(id) {
-    this.dataList.splice(id, 1);
-    this.redraw(this.dataList);
+    const deletedItem = this.dataList.find((item) => item.id == id);
+    this.dataList.splice(this.dataList.indexOf(deletedItem), 1);
+    this.redraw();
   }
 
   createItemFromInput(event) {
@@ -150,7 +160,7 @@ export class App {
     );
 
     this.dataList.push(itemData);
-    this.redraw(this.dataList);
+    this.redraw();
 
     event.target.value = '';
   }
@@ -181,18 +191,8 @@ export class App {
   }
 
   clearDoneItems() {
-    const doneItems = Array.from(
-      document.querySelectorAll('[data-status="done"]')
-    );
-
-    if (doneItems.length) {
-      doneItems.forEach((done) => {
-        const deletedItem = this.dataList.find((item) => done.id === item.id);
-        this.dataList.splice(this.dataList.indexOf(deletedItem), 1);
-      });
-
-      this.redraw(this.dataList);
-    } else return;
+    this.dataList = this.dataList.filter((item) => item.status == 'active');
+    this.redraw();
   }
 
   redraw() {
@@ -202,12 +202,15 @@ export class App {
       .filter((todoItem) => {
         if (!this.searchFilter.value.trim()) {
           return true;
+        } else {
+          return todoItem.text.includes(this.searchFilter.value);
         }
-        switch (true) {
-          case !!this.searchFilter.value:
-            return todoItem.text.includes(this.searchFilter.value);
-          default:
-            break;
+      })
+      .filter((todoItem) => {
+        if (!this.dateFilter.value) {
+          return true;
+        } else {
+          return getFormattedDate(todoItem.endDate) === this.dateFilter.value;
         }
       })
       .sort((itemA, itemB) => {
@@ -218,8 +221,8 @@ export class App {
           case SORT_TYPE.ALPHABET:
             return itemA.text > itemB.text ? increase : decrease;
           case SORT_TYPE.DATE:
-            const itemADate = new Date(getFormattedDate(itemA.endDate));
-            const itemBDate = new Date(getFormattedDate(itemB.endDate));
+            const itemADate = new Date(getFormattedDate(itemA.startDate));
+            const itemBDate = new Date(getFormattedDate(itemB.startDate));
             return itemADate - itemBDate > 0 ? increase : decrease;
           default:
             break;

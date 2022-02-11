@@ -3,7 +3,7 @@ export class Listeners {
     document.querySelector('.modal').remove();
   }
 
-  showAllItems(data) {
+  showAllItems() {
     const allItems = document.querySelectorAll('.list__item');
     if (allItems.length) {
       allItems.forEach((item) => item.classList.remove('hide'));
@@ -15,7 +15,7 @@ export class Listeners {
     if (allItems.length) {
       allItems.forEach((item) => item.classList.remove('hide'));
       allItems
-        .filter((item) => item.dataset.status == 'done')
+        .filter((item) => item.classList.contains('done'))
         .forEach((item) => item.classList.add('hide'));
     } else return;
   }
@@ -25,7 +25,7 @@ export class Listeners {
     if (allItems.length) {
       allItems.forEach((item) => item.classList.remove('hide'));
       allItems
-        .filter((item) => item.dataset.status == 'active')
+        .filter((item) => !item.classList.contains('done'))
         .forEach((item) => item.classList.add('hide'));
     } else return;
   }

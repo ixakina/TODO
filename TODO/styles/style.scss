@@ -22,6 +22,10 @@ h2 {
   &::placeholder {
     font-size: 1.5rem;
   }
+
+  &:invalid {
+    border: 1px solid red;
+  }
 }
 
 .toggle-settings {
@@ -185,15 +189,19 @@ h2 {
   padding: 0 10px;
 }
 
-.date-filter {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  input {
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-  }
+#date {
+  border: 1px solid lightseagreen;
+  background-color: rgba(32, 178, 170, 0.5);
+  border-radius: 5px;
+  font-size: 1.5rem;
+  padding: 0 10px;
+}
+
+.sort button {
+  padding: 7px 15px;
+  border-radius: 5px;
+  background-color: rgba(32, 178, 170, 0.5);
+  font-size: 1.2rem;
 }
 
 .hide {

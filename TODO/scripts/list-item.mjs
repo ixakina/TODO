@@ -1,29 +1,28 @@
 import { createElement } from './utils.mjs';
-
 export class ListItem {
   constructor(startDate, endDate, text, id) {
     this.startDate = startDate;
     this.endDate = endDate;
     this.text = text;
     this.id = id;
+    this.status = 'active';
   }
 
   createItem() {
     const item = createElement('li', 'list__item');
-    item.dataset.status = 'active';
+
     item.id = this.id;
 
     const checkbox = createElement('input', 'item__is-done');
     checkbox.type = 'checkbox';
-    checkbox.addEventListener('change', () => {
-      if (checkbox.checked) {
-        inputText.classList.add('done');
-        item.dataset.status = 'done';
-      } else {
-        inputText.classList.remove('done');
-        item.dataset.status = 'active';
-      }
-    });
+
+    if (this.status === 'done') {
+      checkbox.checked = true;
+      item.classList.add('done');
+    } else {
+      checkbox.checked = false;
+      item.classList.remove('done');
+    }
 
     const itemBody = createElement('div', 'item__body');
 
