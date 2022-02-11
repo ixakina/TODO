@@ -12,6 +12,8 @@ export class App {
   input = document.querySelector('.enter-item');
   settingsBtn = document.querySelector('.toggle-settings');
   settings = document.querySelector('.settings');
+  sortByDateBtn = document.querySelector('.sort-by-date');
+  sortByAlphabetBtn = document.querySelector('.sort-by-alphabet');
   dateFilter = document.querySelector('#date');
   searchFilter = document.querySelector('#search');
   addBtn = document.querySelector('.add-item');
@@ -31,19 +33,15 @@ export class App {
   createListeners() {
     this.input.addEventListener('change', this.createItemFromInput.bind(this));
     this.input.addEventListener('input', validateInput);
-    document
-      .querySelector('.sort-by-date')
-      .addEventListener('click', this.sortByDate.bind(this));
-    document
-      .querySelector('.sort-by-alphabet')
-      .addEventListener('click', this.sortByAlphabet.bind(this));
+    this.sortByDateBtn.addEventListener('click', this.sortByDate.bind(this));
+    this.sortByAlphabetBtn.addEventListener(
+      'click',
+      this.sortByAlphabet.bind(this)
+    );
 
     this.settingsBtn.addEventListener('click', this.toggleSettings.bind(this));
-
     this.dateFilter.addEventListener('change', this.redraw.bind(this));
-
     this.searchFilter.addEventListener('input', this.redraw.bind(this));
-
     this.addBtn.addEventListener('click', () => {
       showModal();
       const save = document.querySelector('.save');
@@ -52,6 +50,10 @@ export class App {
       save.addEventListener('click', this.createItemFromAddBtn.bind(this));
       cancel.addEventListener('click', listeners.closeModal);
     });
+    this.showAllBtn.addEventListener('click', listeners.showAllItems);
+    this.showActiveBtn.addEventListener('click', listeners.showActiveItems);
+    this.showCompletedBtn.addEventListener('click', listeners.showDoneItems);
+    this.clearBtn.addEventListener('click', this.clearDoneItems.bind(this));
 
     this.listItems.addEventListener('click', (e) => {
       const id = e.target.closest('.list__item').id;
@@ -86,37 +88,6 @@ export class App {
           }
       }
     });
-
-    this.showAllBtn.addEventListener('click', listeners.showAllItems);
-    this.showActiveBtn.addEventListener('click', listeners.showActiveItems);
-    this.showCompletedBtn.addEventListener('click', listeners.showDoneItems);
-    this.clearBtn.addEventListener('click', this.clearDoneItems.bind(this));
-  }
-
-  sortByDate() {
-    this.sortCondition =
-      this.sortCondition === SORT_CONDITION.ASC
-        ? SORT_CONDITION.DESC
-        : SORT_CONDITION.ASC;
-
-    this.sortType = SORT_TYPE.DATE;
-
-    this.redraw();
-  }
-
-  sortByAlphabet() {
-    this.sortCondition =
-      this.sortCondition === SORT_CONDITION.ASC
-        ? SORT_CONDITION.DESC
-        : SORT_CONDITION.ASC;
-
-    this.sortType = SORT_TYPE.ALPHABET;
-
-    this.redraw();
-  }
-
-  toggleSettings() {
-    this.settings.classList.toggle('hide');
   }
 
   editItem(id) {
@@ -161,11 +132,10 @@ export class App {
 
     this.dataList.push(itemData);
     this.redraw();
-
     event.target.value = '';
   }
 
-  createItemFromAddBtn(event) {
+  createItemFromAddBtn() {
     const startDate = new Date(
       document.querySelector('.modal__start-date').value
     ).toLocaleDateString();
@@ -180,14 +150,37 @@ export class App {
       text,
       this.dataList.length
     );
-    const newItem = itemData.createItem();
 
     this.dataList.push(itemData);
+    this.redraw();
 
-    const list = document.querySelector('.list');
-    list.append(newItem);
+    listeners.closeModal();
+  }
 
-    event.target.closest('.modal').remove();
+  sortByDate() {
+    this.sortCondition =
+      this.sortCondition === SORT_CONDITION.ASC
+        ? SORT_CONDITION.DESC
+        : SORT_CONDITION.ASC;
+
+    this.sortType = SORT_TYPE.DATE;
+
+    this.redraw();
+  }
+
+  sortByAlphabet() {
+    this.sortCondition =
+      this.sortCondition === SORT_CONDITION.ASC
+        ? SORT_CONDITION.DESC
+        : SORT_CONDITION.ASC;
+
+    this.sortType = SORT_TYPE.ALPHABET;
+
+    this.redraw();
+  }
+
+  toggleSettings() {
+    this.settings.classList.toggle('hide');
   }
 
   clearDoneItems() {
